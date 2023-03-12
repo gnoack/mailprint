@@ -1,0 +1,140 @@
+<html>
+<head>
+<title>Mailprint Deluxe</title>
+<style>
+@import url(http://fonts.googleapis.com/css?family=EB+Garamond);
+html {
+    background-color: #fff6ef;
+}
+body {
+    max-width: 30em;
+    margin: 0 auto;
+    padding: 3em 5em;
+    font-family: Garamond, EB Garamond, serif;
+    font-size: 14pt;
+    /*font-family: Helvetica, Arial, sans-serif;*/
+}
+h1, h2 {
+    font-weight: normal;
+    letter-spacing: -.1rem;
+}
+dt {
+    font-weight: bold;
+    font-size: 1em;
+    margin-top: 1em;
+}
+p {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+p + p {
+    /* text-indent: 2em;*/
+}
+h3 + p {
+    margin-left: 4em;
+}
+pre, tt {
+    font-family: Courier;
+}
+pre {
+    font-size: 0.8em;
+    padding: 1em;
+    background-color: rgba(0,0,0,0.05);
+    border-radius: 0.5em;
+}
+tt {
+    font-size: 0.8em;
+}
+img {
+    display: block;
+    width: 100%;
+    margin-top: 3em;
+    margin-bottom: 3em;
+    margin-right: auto;
+    margin-left: auto;
+}
+</style>
+</head>
+<body>
+
+<h1>Introducing&hellip; Mailprint Deluxe</h1>
+
+
+<p>
+  Your eyes hurt from reading electronic mail on screen?
+</p>
+
+<p>
+  You prefer to have a stack of paper
+  instead of a computer on your desk?
+</p>
+
+<p>
+  Do you want to see sender pictures in your printouts
+  without senders setting the X-Face header?
+</p>
+
+<p>
+  <br>
+  UNIX&trade; wizards and a growing number of businesses
+  rely on <i>Mailprint Deluxe</i>
+  to print out their electronic mail!
+</p>
+
+<img src="mailprint.png"/>
+
+<h2>Why power users pick Mailprint</h2>
+
+<dl>
+  <dt>Mailprint integrates well.</dt>
+  <dd>
+    <p><i>Mailprint</i> is a classic UNIX&trade; tool and adheres to the UNIX&trade; pipe-and-filters architecture (<i>mbox</i>-in, <i>groff</i>-out).</p>
+
+    <p><i>Mailprint</i> is a drop-in replacement for <i>muttprint</i>.</p>
+  </dd>
+<dt>Mailprint is slim.</dt>
+<dd><p>
+  <i>Mailprint</i> is specifically engineered to be slim.
+
+  While <i>muttprint</i> depends on the 250MB+ <a href="https://www.tug.org/texlive/">TeX Live</a> distribution,
+  <i>Mailprint</i> only depends on <a href="https://www.gnu.org/software/groff/">GNU roff</a>,
+  which is usually already installed to support the Linux man pages.
+</p></dd>
+<dt>Mailprint is pretty.</dt>
+<dd>
+<p><i>Mailprint</i> integrates with state-of-the-art profile picture sources to display sender pictures, such as <i>X-Face</i> and <a href="https://kinzler.com/ftp/faces/">picon</a>.</p>
+</dd>
+<dt>Mailprint is free.</dt>
+<dd>
+<p><i>Mailprint</i> is Free Software and available free of charge at <a href="https://github.com/gnoack/mailprint">github.com/gnoack/mailprint</a>.</p>
+</dd>
+</dl>
+
+<img src="mailexample.png"/>
+
+<h2>Get started today!</h2>
+
+<p>What you need:</p>
+
+<ul>
+  <li>A UNIX&trade; or Linux&trade; workstation with <a href="https://www.gnu.org/software/groff/">GNU Groff</a>.<br> Groff is usually already installed on most Linux distributions.</li>
+  <li>Imagemagick's <tt>convert</tt>, if you want profile pictures.</li>
+  <li>The <i>Go programming language</i>, to install <i>Mailprint</i> from source.</li>
+</ul>
+
+<p>To install <i>Mailprint</i> from source, run:</p>
+
+<pre>
+go install github.com/gnoack/mailprint/...@latest
+</pre>
+
+<p>
+  Hook up mailprint with <a href="http://www.mutt.org/">Mutt</a>
+  with the following Mutt configuration entry in <tt>.muttrc</tt>:
+</p>
+
+<pre>
+set print_command="mailprint | lpr"
+</pre>
+</body>
+</html>
