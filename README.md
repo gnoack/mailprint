@@ -1,5 +1,8 @@
 # Mailprint Deluxe!
 
+Mailprint is a replacement for `muttprint`: It reads an email on stdin
+and writes a PDF on stdout.
+
 Installation:
 
 ```
