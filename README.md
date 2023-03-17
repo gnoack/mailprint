@@ -1,7 +1,7 @@
 # Mailprint Deluxe!
 
-*Mailprint* is a replacement for `muttprint`: It reads an email on
-stdin and writes a PDF on stdout.
+[*Mailprint*](https://gnoack.github.io/mailprint) is a replacement for
+`muttprint`: It reads an email on stdin and writes a PDF on stdout.
 
 ## System requirements
 
