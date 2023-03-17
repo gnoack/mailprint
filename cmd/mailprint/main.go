@@ -119,7 +119,7 @@ func lookupIconPdf(email string, w io.Writer) (ok bool, err error) {
 		pipe.Write(w),
 	))
 	if err != nil {
-		return false, fmt.Errorf("convert: %w; %v", err, o)
+		return false, fmt.Errorf("convert: %w; %v", err, string(o))
 	}
 	return true, nil
 }
