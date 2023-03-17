@@ -115,7 +115,7 @@ func lookupIconPdf(email string, w io.Writer) (ok bool, err error) {
 
 	o, err := pipe.CombinedOutput(pipe.Line(
 		pipe.ReadFile(filename),
-		pipe.Exec("convert", "--", filename, "PDF:-"),
+		pipe.Exec("convert", "--", "-", "PDF:-"),
 		pipe.Write(w),
 	))
 	if err != nil {
