@@ -3,6 +3,8 @@
 [*Mailprint*](https://gnoack.github.io/mailprint) is a replacement for
 `muttprint`: It reads an email on stdin and writes a PDF on stdout.
 
+![](https://gnoack.github.io/mailprint/mailprint.png)
+
 ## System requirements
 
 * GNU roff (`groff`): to format the mail to PDF
