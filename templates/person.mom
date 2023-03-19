@@ -1,0 +1,7 @@
+{{define "person" -}}
+{{if .Name -}}
+  {{.Name | escape}} <{{.Address | escape}}>
+{{- else -}}
+  {{.Address | escape}}
+{{- end -}}
+{{end -}}
