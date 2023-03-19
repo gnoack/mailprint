@@ -30,6 +30,8 @@ Profile pictures (picons)
 	The picons archive can be found at https://kinzler.com/picons/ftp/,
 	or installed with the "picons" package on Debian.
 
+	The unpacked picons will be looked up in ~/.picons or /usr/share/picons.
+
 Other output formats
 	By default, Mailprint runs groff for you and looks up profile pictures.
 	You can turn off both by setting the following flags:
