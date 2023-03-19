@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/gnoack/mailprint"
@@ -53,11 +52,7 @@ func run() error {
 	}
 	defer os.Remove(logoPdfOut.Name())
 
-	mailbuf, err := io.ReadAll(os.Stdin)
-	if err != nil {
-		return err
-	}
-	email, err := mailprint.Parse(bytes.NewReader(mailbuf))
+	email, err := mailprint.Parse(os.Stdin)
 	if err != nil {
 		return err
 	}
@@ -74,6 +69,7 @@ func run() error {
 		logoPdf = ""
 	}
 
+	// XXX: Move the Landlock call before mail parsing and profile picture lookup.
 	err = landlock.V3.BestEffort().RestrictPaths(
 		landlock.RODirs(strings.Split(os.Getenv("PATH"), ":")...).IgnoreIfMissing(),
 		landlock.RODirs("/usr", "/lib"),
@@ -84,14 +80,18 @@ func run() error {
 		return fmt.Errorf("landlock: %w", err)
 	}
 
+	if !*cc {
+		email.Cc = nil
+	}
+
+	var groffbuf bytes.Buffer
+	err = mailprint.Render(email, *pageFormat, logoPdf, &groffbuf)
+	if err != nil {
+		return fmt.Errorf("mailprint.Render: %w", err)
+	}
+
 	o, err := pipe.CombinedOutput(pipe.Line(
-		pipe.Read(bytes.NewReader(mailbuf)),
-		pipe.Exec(
-			"mail2groff",
-			"-cc="+strconv.FormatBool(*cc),
-			"-page_format="+*pageFormat,
-			"-logo_pdf="+logoPdf,
-		),
+		pipe.Read(&groffbuf),
 		pipe.Exec("preconv"),
 		pipe.Exec("groff", "-mom", "-Tpdf"),
 		pipe.Write(os.Stdout),
