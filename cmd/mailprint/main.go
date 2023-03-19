@@ -24,12 +24,24 @@ var (
 	outFormat  = flag.String("output.format", "pdf", "Output format (one of 'pdf', 'mom')")
 )
 
-var usage = `Mailprint Deluxe!
+var usage = `Mailprint Deluxe! 📬
 
-Faces!
+Profile pictures (picons)
 	The picons archive can be found at https://kinzler.com/picons/ftp/,
 	or installed with the "picons" package on Debian.
 
+Other output formats
+	By default, Mailprint runs groff for you and looks up profile pictures.
+	You can turn off both by setting the following flags:
+
+	    --face.picon=false --output.format=mom
+
+	The groff output is in "Mom" format and may contain UTF-8.
+	To format it as PDF, run it through preconv and groff like so:
+
+	    mailprint --face.picon --output.format=mom | preconv | groff -Tpdf -mom
+
+Happy printing! 💜
 `
 
 func main() {
