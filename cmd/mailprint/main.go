@@ -21,6 +21,7 @@ var (
 	pageFormat = flag.String("page_format", "A4", "Page format (A4, letter, ...), as supported by groff(1)")
 	cc         = flag.Bool("cc", true, "Whether to show the CC headers.")
 	facePicon  = flag.Bool("face.picon", true, "Whether to look up picon profile pictures")
+	outFormat  = flag.String("output.format", "pdf", "Output format (one of 'pdf', 'mom')")
 )
 
 var usage = `Mailprint Deluxe!
@@ -70,6 +71,7 @@ func run() error {
 	}
 
 	// XXX: Move the Landlock call before mail parsing and profile picture lookup.
+	// See https://lore.kernel.org/all/20230319.2139b35f996f@gnoack.org/
 	err = landlock.V3.BestEffort().RestrictPaths(
 		landlock.RODirs(strings.Split(os.Getenv("PATH"), ":")...).IgnoreIfMissing(),
 		landlock.RODirs("/usr", "/lib"),
@@ -90,14 +92,24 @@ func run() error {
 		return fmt.Errorf("mailprint.Render: %w", err)
 	}
 
-	o, err := pipe.CombinedOutput(pipe.Line(
-		pipe.Read(&groffbuf),
-		pipe.Exec("preconv"),
-		pipe.Exec("groff", "-mom", "-Tpdf"),
-		pipe.Write(os.Stdout),
-	))
-	if err != nil {
-		return fmt.Errorf("Pipeline failed: %v", string(o))
+	switch *outFormat {
+	case "pdf":
+		o, err := pipe.CombinedOutput(pipe.Line(
+			pipe.Read(&groffbuf),
+			pipe.Exec("preconv"),
+			pipe.Exec("groff", "-mom", "-Tpdf"),
+			pipe.Write(os.Stdout),
+		))
+		if err != nil {
+			return fmt.Errorf("Pipeline failed: %v", string(o))
+		}
+	case "mom":
+		_, err := io.Copy(os.Stdout, &groffbuf)
+		if err != nil {
+			return fmt.Errorf("io.Copy: %w", err)
+		}
+	default:
+		return fmt.Errorf("unknown output format %q", *outFormat)
 	}
 	return nil
 }
