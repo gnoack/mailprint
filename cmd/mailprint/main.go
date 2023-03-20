@@ -61,11 +61,39 @@ func main() {
 }
 
 func run() error {
-	logoPdfOut, err := os.CreateTemp("", "MailprintFace*.pdf")
+	tmpdir, err := os.MkdirTemp("", "Mailprint*")
+	if err != nil {
+		return err
+	}
+	os.Setenv("TMPDIR", tmpdir) // Used by ImageMagick
+	defer os.RemoveAll(tmpdir)
+
+	logoPdfOut, err := os.CreateTemp(tmpdir, "MailprintFace*.pdf")
 	if err != nil {
 		return err
 	}
 	defer os.Remove(logoPdfOut.Name())
+
+	err = landlock.V3.BestEffort().RestrictPaths(
+		// Deleting tmpdir
+		landlock.PathAccess(llsys.AccessFSRemoveFile, filepath.Dir(tmpdir)),
+		// Icon lookup
+		landlock.RODirs(
+			"/usr/share/picons", // where it's installed on Debian
+			filepath.Join(os.Getenv("HOME"), ".picons"),
+		).IgnoreIfMissing(),
+		// General binary invocations
+		landlock.RODirs(strings.Split(os.Getenv("PATH"), ":")...).IgnoreIfMissing(),
+		landlock.RODirs("/usr", "/lib"),
+		// ImageMagick
+		landlock.RWDirs(tmpdir),
+		landlock.RODirs("/etc"),
+		// Groff (to read the PDF profile image)
+		landlock.ROFiles(logoPdfOut.Name()),
+	)
+	if err != nil {
+		return fmt.Errorf("landlock: %w", err)
+	}
 
 	email, err := mailprint.Parse(os.Stdin)
 	if err != nil {
@@ -82,18 +110,6 @@ func run() error {
 	logoPdf := logoPdfOut.Name()
 	if !ok {
 		logoPdf = ""
-	}
-
-	// XXX: Move the Landlock call before mail parsing and profile picture lookup.
-	// See https://lore.kernel.org/all/20230319.2139b35f996f@gnoack.org/
-	err = landlock.V3.BestEffort().RestrictPaths(
-		landlock.RODirs(strings.Split(os.Getenv("PATH"), ":")...).IgnoreIfMissing(),
-		landlock.RODirs("/usr", "/lib"),
-		landlock.ROFiles(logoPdfOut.Name()),
-		landlock.PathAccess(llsys.AccessFSRemoveFile, filepath.Dir(logoPdfOut.Name())),
-	)
-	if err != nil {
-		return fmt.Errorf("landlock: %w", err)
 	}
 
 	if !*cc {
