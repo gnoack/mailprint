@@ -86,9 +86,13 @@ func processBody(input string) string {
 		}
 		switch b {
 		case '\t':
-			for pos%8 != 0 {
+			for {
 				out.WriteByte(' ')
 				pos++
+
+				if pos%8 == 0 {
+					break
+				}
 			}
 		case '\n':
 			out.WriteByte(b)
