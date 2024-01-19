@@ -86,7 +86,7 @@ func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 		}
 		return strings.TrimSuffix(string(b), "\n"), nil
 	case "text/html":
-		return "", fmt.Errorf("Unsupported content type %q", contentType)
+		return "", fmt.Errorf("unsupported content type %q", contentType)
 	case "multipart/alternative":
 		fallthrough
 	case "multipart/related":
@@ -106,7 +106,7 @@ func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 		}
 		return "", errors.New("missing plain text content")
 	default:
-		return "", fmt.Errorf("Unknown content type %q", contentType)
+		return "", fmt.Errorf("unknown content type %q", contentType)
 	}
 
 }
