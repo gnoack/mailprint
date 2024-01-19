@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime"
 	"mime/multipart"
 	"net/mail"
@@ -81,7 +80,7 @@ func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 
 	switch contentType {
 	case "text/plain":
-		b, err := ioutil.ReadAll(r)
+		b, err := io.ReadAll(r)
 		if err != nil {
 			return "", err
 		}
