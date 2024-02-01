@@ -102,11 +102,11 @@ func run() error {
 	}
 
 	if len(email.From) < 1 {
-		return fmt.Errorf("Missing 'From' header")
+		return fmt.Errorf("missing 'From' header")
 	}
 	ok, err := lookupIconPdf(email.From[0].Address, logoPdfOut)
 	if err != nil {
-		return fmt.Errorf("Looking up face: %w", err)
+		return fmt.Errorf("looking up face: %w", err)
 	}
 	logoPdf := logoPdfOut.Name()
 	if !ok {
@@ -132,7 +132,7 @@ func run() error {
 			pipe.Write(os.Stdout),
 		))
 		if err != nil {
-			return fmt.Errorf("Pipeline failed: %v", string(o))
+			return fmt.Errorf("running pipeline: %v", string(o))
 		}
 	case "mom":
 		_, err := io.Copy(os.Stdout, &groffbuf)
