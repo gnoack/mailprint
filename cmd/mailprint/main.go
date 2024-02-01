@@ -72,6 +72,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	defer logoPdfOut.Close()
 	defer os.Remove(logoPdfOut.Name())
 
 	err = landlock.V4.BestEffort().Restrict(
