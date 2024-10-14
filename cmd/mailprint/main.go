@@ -75,7 +75,7 @@ func run() error {
 	defer logoPdfOut.Close()
 	defer os.Remove(logoPdfOut.Name())
 
-	err = landlock.V4.BestEffort().Restrict(
+	err = landlock.V5.BestEffort().Restrict(
 		// Deleting tmpdir
 		landlock.PathAccess(llsys.AccessFSRemoveFile, filepath.Dir(tmpdir)),
 		// Icon lookup
