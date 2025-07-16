@@ -1,27 +1,21 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gnoack/mailprint"
 	"github.com/gnoack/picon"
 	"github.com/landlock-lsm/go-landlock/landlock"
-	llsys "github.com/landlock-lsm/go-landlock/landlock/syscall"
-	"gopkg.in/pipe.v2"
 )
 
 var (
-	pageFormat = flag.String("page_format", "A4", "Page format (A4, letter, ...), as supported by groff(1)")
+	pageFormat = flag.String("page_format", "A4", "Page format (A4, letter, ...)")
 	cc         = flag.Bool("cc", true, "Whether to show the CC headers.")
 	facePicon  = flag.Bool("face.picon", true, "Whether to look up picon profile pictures")
-	outFormat  = flag.String("output.format", "pdf", "Output format (one of 'pdf', 'mom')")
 )
 
 var usage = `Mailprint Deluxe! 📬
@@ -31,17 +25,6 @@ Profile pictures (picons)
 	or installed with the "picons" package on Debian.
 
 	The unpacked picons will be looked up in ~/.picons or /usr/share/picons.
-
-Other output formats
-	By default, Mailprint runs groff for you and looks up profile pictures.
-	You can turn off both by setting the following flags:
-
-	    --face.picon=false --output.format=mom
-
-	The groff output is in "Mom" format and may contain UTF-8.
-	To format it as PDF, run it through preconv and groff like so:
-
-	    mailprint --face.picon --output.format=mom | preconv | groff -Tpdf -mom
 
 Happy printing! 💜
 `
@@ -55,47 +38,44 @@ func main() {
 	}
 	flag.Parse()
 
-	if err := run(); err != nil {
+	// TODO: Maybe make this configurable in the future.
+	var (
+		headerFont  = "Serif"
+		contentFont = "Mono"
+	)
+	fontPaths, err := mailprint.FindFonts(headerFont, contentFont)
+	if err != nil {
+		log.Fatalf("Font lookup: %v", err)
+	}
+
+	if err := enableSandbox(fontPaths); err != nil {
+		log.Fatalf("Failed to enable opportunistic Landlock sandbox: %v", err)
+	}
+
+	if err := run(fontPaths); err != nil {
 		log.Fatalf("Error: %v", err)
 	}
 }
 
-func run() error {
-	tmpdir, err := os.MkdirTemp("", "Mailprint*")
-	if err != nil {
-		return err
-	}
-	os.Setenv("TMPDIR", tmpdir) // Used by ImageMagick
-	defer os.RemoveAll(tmpdir)
+func enableSandbox(fontPaths mailprint.FontPathOptions) error {
+	home := os.Getenv("HOME")
 
-	logoPdfOut, err := os.CreateTemp(tmpdir, "MailprintFace*.pdf")
-	if err != nil {
-		return err
-	}
-	defer logoPdfOut.Close()
-	defer os.Remove(logoPdfOut.Name())
-
-	err = landlock.V5.BestEffort().Restrict(
-		// Deleting tmpdir
-		landlock.PathAccess(llsys.AccessFSRemoveFile, filepath.Dir(tmpdir)),
+	return landlock.V5.BestEffort().Restrict(
 		// Icon lookup
 		landlock.RODirs(
 			"/usr/share/picons", // where it's installed on Debian
-			filepath.Join(os.Getenv("HOME"), ".picons"),
+			filepath.Join(home, ".picons"),
 		).IgnoreIfMissing(),
-		// General binary invocations
-		landlock.RODirs(strings.Split(os.Getenv("PATH"), ":")...).IgnoreIfMissing(),
-		landlock.RODirs("/usr", "/lib"),
-		// ImageMagick
-		landlock.RWDirs(tmpdir),
-		landlock.RODirs("/etc"),
-		// Groff (to read the PDF profile image)
-		landlock.ROFiles(logoPdfOut.Name()),
+		// Fonts
+		landlock.ROFiles(
+			fontPaths.Content,
+			fontPaths.Header,
+			fontPaths.HeaderBold,
+		).IgnoreIfMissing(),
 	)
-	if err != nil {
-		return fmt.Errorf("landlock: %w", err)
-	}
+}
 
+func run(fontPaths mailprint.FontPathOptions) error {
 	email, err := mailprint.Parse(os.Stdin)
 	if err != nil {
 		return err
@@ -104,65 +84,37 @@ func run() error {
 	if len(email.From) < 1 {
 		return fmt.Errorf("missing 'From' header")
 	}
-	ok, err := lookupIconPdf(email.From[0].Address, logoPdfOut)
-	if err != nil {
-		return fmt.Errorf("looking up face: %w", err)
-	}
-	logoPdf := logoPdfOut.Name()
+	logoPath, ok := lookupIconPath(email.From[0].Address)
 	if !ok {
-		logoPdf = ""
+		logoPath = ""
 	}
 
 	if !*cc {
 		email.Cc = nil
 	}
 
-	var groffbuf bytes.Buffer
-	err = mailprint.Render(email, *pageFormat, logoPdf, &groffbuf)
+	opts := &mailprint.RenderOptions{
+		PageFormat: *pageFormat,
+		LogoPath:   logoPath,
+		FontPaths:  fontPaths,
+	}
+	err = mailprint.RenderPdf(email, opts, os.Stdout)
 	if err != nil {
-		return fmt.Errorf("mailprint.Render: %w", err)
+		return fmt.Errorf("mailprint.RenderPdf: %w", err)
 	}
 
-	switch *outFormat {
-	case "pdf":
-		o, err := pipe.CombinedOutput(pipe.Line(
-			pipe.Read(&groffbuf),
-			pipe.Exec("preconv"),
-			pipe.Exec("groff", "-mom", "-Tpdf"),
-			pipe.Write(os.Stdout),
-		))
-		if err != nil {
-			return fmt.Errorf("running pipeline: %v", string(o))
-		}
-	case "mom":
-		_, err := io.Copy(os.Stdout, &groffbuf)
-		if err != nil {
-			return fmt.Errorf("io.Copy: %w", err)
-		}
-	default:
-		return fmt.Errorf("unknown output format %q", *outFormat)
-	}
 	return nil
 }
 
-// Look up the face and write a PDF to w. Return true if w was written.
-func lookupIconPdf(email string, w io.Writer) (ok bool, err error) {
+// Look up the face and return the path to the image.
+func lookupIconPath(email string) (path string, ok bool) {
 	if !*facePicon {
-		return false, nil
+		return "", false
 	}
 
 	filename, ok := picon.Lookup(email)
 	if filename == "" || !ok {
-		return false, nil
+		return "", false
 	}
-
-	o, err := pipe.CombinedOutput(pipe.Line(
-		pipe.ReadFile(filename),
-		pipe.Exec("convert", "--", "-", "PDF:-"),
-		pipe.Write(w),
-	))
-	if err != nil {
-		return false, fmt.Errorf("convert: %w; %v", err, string(o))
-	}
-	return true, nil
+	return filename, true
 }
