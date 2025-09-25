@@ -63,6 +63,8 @@ func Parse(r io.Reader) (*Email, error) {
 	return &e, nil
 }
 
+var unsupportedContentTypeErr = errors.New("unsupported content type")
+
 func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 	var (
 		contentType string
@@ -86,7 +88,7 @@ func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 		}
 		return strings.TrimSuffix(string(b), "\n"), nil
 	case "text/html":
-		return "", fmt.Errorf("unsupported content type %q", contentType)
+		return "", unsupportedContentTypeErr
 	case "multipart/alternative":
 		fallthrough
 	case "multipart/related":
@@ -102,11 +104,14 @@ func parseTextBody(ctHdr string, r io.Reader) (string, error) {
 			} else if err != nil {
 				return "", err
 			}
-			return parseTextBody(part.Header.Get("Content-Type"), part)
+			result, err := parseTextBody(part.Header.Get("Content-Type"), part)
+			if err == unsupportedContentTypeErr {
+				continue
+			}
+			return result, err
 		}
 		return "", errors.New("missing plain text content")
 	default:
 		return "", fmt.Errorf("unknown content type %q", contentType)
 	}
-
 }
