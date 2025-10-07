@@ -125,16 +125,9 @@ img {
 
 <h2>Get started today!</h2>
 
-<p>What you need:</p>
-
-<ul>
-  <li>A UNIX&trade; or Linux&trade; workstation</li>
-  <li>The <i>Go programming language</i>, to install <i>Mailprint</i> from source.</li>
-</ul>
-
 <p>
   To install the <tt>mailprint</tt> command line tool
-  in <tt>$HOME/go/bin</tt>, run:
+  to <tt>$HOME/go/bin</tt>, run:
 </p>
 
 <pre>
@@ -149,6 +142,11 @@ go install github.com/gnoack/mailprint/...@latest
 <pre>
 set print_command="mailprint | lpr"
 </pre>
+
+<p>
+  The only runtime dependency is Fontconfig for font lookup,
+  as well as suitable fonts for rendering.
+</p>
 
 </body>
 </html>
