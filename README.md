@@ -7,14 +7,6 @@
 
 ## System requirements
 
-* GNU roff (`groff`): to format the mail to PDF
-* ImageMagick's `convert`: to convert profile pictures to PDF format
-
-*groff* is usually already installed on Linux,
-because it is used to format man pages.
-ImageMagick is a popular package for doing
-image manipulation on the command line.
-
 ## Installation and setup
 
 Installation:
