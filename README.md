@@ -5,8 +5,6 @@
 
 ![](https://gnoack.github.io/mailprint/mailprint.png)
 
-## System requirements
-
 ## Installation and setup
 
 Installation:
