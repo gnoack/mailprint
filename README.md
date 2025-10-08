@@ -10,7 +10,9 @@
 Installation:
 
 ```
-go install github.com/gnoack/mailprint/...@latest
+git clone github.com/gnoack/mailprint
+cd mailprint
+go install ./cmd/mailprint
 ```
 
 In your muttrc:
