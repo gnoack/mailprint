@@ -123,7 +123,7 @@ func RenderPdf(em *Email, opts *RenderOptions, w io.Writer) error {
 	}
 
 	// Draw line
-	currentY := pdf.GetY() + 5 // smaller gap before the line
+	currentY := max(pdf.GetY(), margin+avatarSize.H) + 5 // smaller gap before the line
 	pdf.SetLineWidth(0.5)
 	pdf.Line(margin, currentY, pageSize.W-margin, currentY)
 	pdf.SetY(currentY + 20)
