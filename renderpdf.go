@@ -177,15 +177,33 @@ func processBodyPdf(input string, pdf *gopdf.GoPdf, pageSize *gopdf.Rect) {
 		}
 		pdf.SetTextColor(r, g, b)
 
+		line = expandTabs(line, 8)
+		line = truncate(line, maxWidth, pdf)
+
 		pdf.CellWithOption(
 			&gopdf.Rect{W: maxWidth, H: lineHeight},
-			truncate(line, maxWidth, pdf),
+			line,
 			gopdf.CellOption{
 				//Border:      gopdf.AllBorders,
 				Float: gopdf.Bottom,
 			},
 		)
 	}
+}
+
+func expandTabs(line string, tabWidth int) string {
+	var buf strings.Builder
+	for _, c := range line {
+		if c == '\t' {
+			buf.WriteByte(' ')
+			for buf.Len()%tabWidth != 0 {
+				buf.WriteByte(' ')
+			}
+			continue
+		}
+		buf.WriteRune(c)
+	}
+	return buf.String()
 }
 
 func truncate(text string, maxWidth float64, pdf *gopdf.GoPdf) string {
