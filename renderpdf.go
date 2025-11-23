@@ -30,6 +30,12 @@ func RenderPdf(em *Email, opts *RenderOptions, w io.Writer) error {
 	switch strings.ToLower(opts.PageFormat) {
 	case "letter":
 		pageSize = gopdf.PageSizeLetter
+	case "legal":
+		pageSize = gopdf.PageSizeLegal
+	case "a2":
+		pageSize = gopdf.PageSizeA2
+	case "a3":
+		pageSize = gopdf.PageSizeA3
 	case "a4":
 		pageSize = gopdf.PageSizeA4
 	default:
