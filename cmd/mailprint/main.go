@@ -60,7 +60,7 @@ func main() {
 func enableSandbox(fontPaths mailprint.FontPathOptions) error {
 	home := os.Getenv("HOME")
 
-	return landlock.V5.BestEffort().Restrict(
+	return landlock.V8.BestEffort().Restrict(
 		// Icon lookup
 		landlock.RODirs(
 			"/usr/share/picons", // where it's installed on Debian
