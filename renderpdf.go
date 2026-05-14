@@ -74,7 +74,9 @@ func RenderPdf(em *Email, opts *RenderOptions, w io.Writer) error {
 	headers := []Header{
 		{"Subject:", em.Subject},
 		{"From:", formatAddresses(em.From)},
-		{"To:", formatAddresses(em.To)},
+	}
+	if len(em.To) > 0 {
+		headers = append(headers, Header{"To:", formatAddresses(em.To)})
 	}
 	if len(em.Cc) > 0 {
 		headers = append(headers, Header{"Cc:", formatAddresses(em.Cc)})

@@ -41,7 +41,7 @@ func Parse(r io.Reader) (*Email, error) {
 	}
 
 	e.To, err = h.AddressList("To")
-	if err != nil {
+	if err != nil && err != mail.ErrHeaderNotPresent {
 		return nil, fmt.Errorf("header 'To': %w", err)
 	}
 
