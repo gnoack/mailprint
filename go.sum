@@ -1,7 +1,7 @@
 github.com/gnoack/picon v0.0.0-20240407101117-35066a944c38 h1:G1XNeaFtDw9/KOPK/a3WyIAxaSbETRqT1d9JT+4uv/s=
 github.com/gnoack/picon v0.0.0-20240407101117-35066a944c38/go.mod h1:tvwZiJt1qjXTm+quIBo/Q23/GmqAQnrSo37ztnF1Djs=
-github.com/landlock-lsm/go-landlock v0.8.0 h1:INaqZhEL+sVyjgzSoSLiVwzEvXsKfKz+e0aQH8p6U3E=
-github.com/landlock-lsm/go-landlock v0.8.0/go.mod h1:mn5GSi81Jf7yMs5WSi+SUi4sUeNLUGVdbT4Id6wXNQw=
+github.com/landlock-lsm/go-landlock v0.10.0 h1:1o2TDSEK/LRazMq9RNd6ln7WSoVx3ceOsATYkIuoeFE=
+github.com/landlock-lsm/go-landlock v0.10.0/go.mod h1:mn5GSi81Jf7yMs5WSi+SUi4sUeNLUGVdbT4Id6wXNQw=
 github.com/phpdave11/gofpdi v1.0.14-0.20211212211723-1f10f9844311/go.mod h1:vBmVV0Do6hSBHC8uKUQ71JGW+ZGQq74llk/7bXwjDoI=
 github.com/phpdave11/gofpdi v1.0.15 h1:iJazY1BQ07I9s7N5EWjBO1YbhmKfHGxNligUv/Rw4Lc=
 github.com/phpdave11/gofpdi v1.0.15/go.mod h1:vBmVV0Do6hSBHC8uKUQ71JGW+ZGQq74llk/7bXwjDoI=

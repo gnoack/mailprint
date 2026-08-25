@@ -6,7 +6,7 @@ toolchain go1.24.5
 
 require (
 	github.com/gnoack/picon v0.0.0-20240407101117-35066a944c38
-	github.com/landlock-lsm/go-landlock v0.8.0
+	github.com/landlock-lsm/go-landlock v0.10.0
 	github.com/signintech/gopdf v0.33.0
 )
 
