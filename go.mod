@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/gnoack/picon v0.0.0-20260924194734-780e653a0fd7
-	github.com/landlock-lsm/go-landlock v0.10.0
+	github.com/landlock-lsm/go-landlock v0.11.0
 	github.com/signintech/gopdf v0.38.1
 )
 
